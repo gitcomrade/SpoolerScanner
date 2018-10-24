@@ -1,3 +1,15 @@
+#Credit goes to https://github.com/vletoux/SpoolerScanner
+#forked and added grab DC list as his script you have to manually edit file and add IP to last line
+
+#you can optionally pass in a hostname or IP as a command line argument to this script
+Param(
+$IP
+)
+
+if (!$IP){
+$IP = (([System.Directoryservices.Activedirectory.Domain]::GetCurrentDomain()).domaincontrollers).name
+} 
+
 $sourceSpooler = @"
 using System;
 using System.Collections.Generic;
@@ -720,4 +732,7 @@ Add-Type -TypeDefinition $sourceSpooler
 
 $rprn = New-Object PingCastle.ExtractedCode.rprn
 
-$rprn.CheckIfTheSpoolerIsActive("192.168.0.20")
+write-host "Are your DCs running the Spooler Service?"
+ForEach ($thing in $IP) {
+write-host "$thing" $rprn.CheckIfTheSpoolerIsActive($thing)
+}
